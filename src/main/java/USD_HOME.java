@@ -61,7 +61,7 @@ public class USD_HOME {
                     String message;
                     double k = 1270 * 60.51 / parser.getKurs();
 
-                    message = String.format("\n%1$.4f BYN \n$ %2$.0f1", parser.getKurs(), k);
+                    message = String.format("\n%1$.4f BYN \n$ %2$.0f", parser.getKurs(), k);
 
                     String bank_str = parser.getBank();
                     int end = bank_str.indexOf("Актуально") - 1;
