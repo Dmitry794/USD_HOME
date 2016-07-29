@@ -8,70 +8,82 @@ import java.io.IOException;
 /**
  * Created by Dmitry on 27.07.2016.
  */
-public class HTMLParser {
-    Document docs;
-    Elements el;
-    Elements banks;
-    double kurs;
+public class HTMLParser implements Runnable {
+    private Document docs;
+    private Elements el;
+    private Elements banks;
+    private double kurs;
+    private String kurs_text;
+    private String bank_text;
 
     HTMLParser() {
 
     }
+
+    void getData() {
+        try {
+            docs = Jsoup.connect("http://finance.tut.by/kurs/minsk/dollar/vse-banki/?sortBy=buy&sortDir=down").get();
+            el = docs.select("b[class]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        kurs = 10;
+        double temp;
+        temp = 0;
+        kurs_text = null;
+
+        for (Element e : el) {
+            temp = Double.valueOf(e.text());
+            if (temp < kurs) {
+                kurs = temp;
+                kurs_text = e.text();
+            }
+        }
+        //-----------------------------------------
+        banks = docs.select("td");
+        int id = 0;
+
+        for (Element bank : banks) {
+            try {
+                if (bank.text().equals(kurs_text)) {
+
+                    id = banks.indexOf(bank) - 1;
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                //e.printStackTrace();
+                // System.err.println(bank.text());
+            }
+        }
+
+        if (id > 0) bank_text = banks.get(id).text();
+        else bank_text = "Bank not Found!";
+        //-----------------------------------------
+    }
+
 
     String getTitle() {
         return docs.title();
     }
 
     double getKurs() {
-        try {
-            docs = Jsoup.connect("http://finance.tut.by/kurs/minsk/dollar/vse-banki/?sortBy=buy&sortDir=down").get();
-//            el = docs.getElementsByTag("<td>");
-            el = docs.select("b[class]");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        kurs = 10;
-        double temp = 0;
-
-        for (Element e : el) {
-            temp = Double.valueOf(e.text());
-            if (temp < kurs) kurs = temp;
-
-        }
         return kurs;
     }
 
     String getBank() {
+        return bank_text;
+    }
 
-       // try {
-      //      docs = Jsoup.connect("http://finance.tut.by/kurs/minsk/dollar/vse-banki/?sortBy=buy&sortDir=down").get();
-
-            banks = docs.select("td");
-            int id = 0;
-//            System.out.println(banks.size());
-
-            for (Element bank : banks) {
-                //System.out.println(bank.text());
-
-                try {
-                    if (Double.valueOf(bank.text()) == getKurs()) {
-
-                        id = banks.indexOf(bank);
-                        break;
-                    }
-                } catch (NumberFormatException e) {
-                    //e.printStackTrace();
-                    // System.err.println(bank.text());
-                }
+    public void run() {
+        for (; ; ) {
+            try {
+                getData();
+                Thread.sleep(60*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        }
 
-            if (id>0) return banks.get(id-1).text();
-            else return "Bank not Found!";
-
-       // } catch (IOException e) {
-        //    e.printStackTrace();
-        //}
     }
 }

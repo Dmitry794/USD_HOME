@@ -14,8 +14,13 @@ public class USD_HOME {
         final TrayIcon trayIcon;
         final HTMLParser parser;
 
+
         if (SystemTray.isSupported()) {
             parser = new HTMLParser();
+            parser.getData();
+
+            Thread threadGetData = new Thread(parser);
+            threadGetData.start();
             // parser.getBank();
 
             SystemTray tray = SystemTray.getSystemTray();
@@ -25,7 +30,7 @@ public class USD_HOME {
             //  g.drawRect(0,0,16,16);
             //
             g.fillRect(0, 0, 12, 12);
-            g.setColor(new Color(100, 228, 77));
+            g.setColor(new Color(35, 118, 85));
             g.fillRect(4, 4, 12, 12);
             g.setColor(Color.white);
             g.setFont(new Font("TimesRoman", Font.BOLD, 11));
@@ -45,19 +50,9 @@ public class USD_HOME {
             popup.add(defaultItem);
 
             trayIcon = new TrayIcon(img, "Лучший курс USD", popup);
-/*
+
             ActionListener actionListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    trayIcon.displayMessage("АБСОЛЮТБАНК",
-                            "1,99 -> $38 616.9",
-                            TrayIcon.MessageType.NONE);
-                }
-            };
-*/
-            MouseListener mouseListener = new MouseListener() {
-
-                public void mouseClicked(MouseEvent e) {
-
                     String message;
                     double k = 1270 * 60.51 / parser.getKurs();
 
@@ -71,11 +66,18 @@ public class USD_HOME {
 //                        System.out.println(bank_str.substring(0,end));
 
                     trayIcon.displayMessage("Лучший курс", bank_mes + message, TrayIcon.MessageType.INFO);
+                }
+            };
+
+            MouseListener mouseListener = new MouseListener() {
+
+                public void mouseClicked(MouseEvent e) {
 
                 }
 
                 public void mouseEntered(MouseEvent e) {
 //                    System.out.println("Tray Icon - Mouse entered!");
+
                 }
 
                 public void mouseExited(MouseEvent e) {
@@ -91,7 +93,7 @@ public class USD_HOME {
                 }
             };
 //            trayIcon.setImageAutoSize(true);
-//            trayIcon.addActionListener(actionListener);
+            trayIcon.addActionListener(actionListener);
             trayIcon.addMouseListener(mouseListener);
 
             try {
