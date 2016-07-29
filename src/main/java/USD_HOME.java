@@ -1,4 +1,7 @@
 
+import oracle.jrockit.jfr.JFR;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,57 +18,59 @@ public class USD_HOME {
         final HTMLParser parser;
 
 
+
         if (SystemTray.isSupported()) {
             parser = new HTMLParser();
             parser.getData();
 
             Thread threadGetData = new Thread(parser);
             threadGetData.start();
-            // parser.getBank();
 
             SystemTray tray = SystemTray.getSystemTray();
             BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = img.createGraphics();
             g.setColor(new Color(27, 174, 250));
-            //  g.drawRect(0,0,16,16);
-            //
+
             g.fillRect(0, 0, 12, 12);
-            g.setColor(new Color(35, 118, 85));
+            g.setColor(new Color(220, 250, 68));
             g.fillRect(4, 4, 12, 12);
-            g.setColor(Color.white);
+            g.setColor(new Color(27, 174, 250));
             g.setFont(new Font("TimesRoman", Font.BOLD, 11));
             g.drawString("$", 8, 14);
+
+            trayIcon = new TrayIcon(img, "Лучший курс USD");
 
 
             ActionListener exitListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+
                     System.out.println("Exiting...");
                     System.exit(0);
+                }
+            };
+
+            final ActionListener listBanksListener = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    parser.showWindow();
                 }
             };
 
             PopupMenu popup = new PopupMenu();
             MenuItem defaultItem = new MenuItem("Закрыть");
             defaultItem.addActionListener(exitListener);
+
+            MenuItem listBanksItem = new MenuItem("Список банков");
+            listBanksItem.addActionListener(listBanksListener);
+
+            popup.add(listBanksItem);
             popup.add(defaultItem);
 
-            trayIcon = new TrayIcon(img, "Лучший курс USD", popup);
+            trayIcon.setPopupMenu(popup);
 
             ActionListener actionListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    String message;
-                    double k = 1270 * 60.51 / parser.getKurs();
 
-                    message = String.format("\n%1$.4f BYN \n$ %2$.0f", parser.getKurs(), k);
-
-                    String bank_str = parser.getBank();
-                    int end = bank_str.indexOf("Актуально") - 1;
-                    String bank_mes = null;
-
-                    if (end > 0) bank_mes = new String(bank_str.substring(0, end));
-//                        System.out.println(bank_str.substring(0,end));
-
-                    trayIcon.displayMessage("Лучший курс", bank_mes + message, TrayIcon.MessageType.INFO);
+                    trayIcon.displayMessage("Лучший курс", parser.getShortMessage(), TrayIcon.MessageType.INFO);
                 }
             };
 
