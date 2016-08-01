@@ -14,6 +14,9 @@ public class HTMLParser implements Runnable {
     private String[] listBanks;
     private JFrame window;
     private JLabel err;
+    private JLabel labelKurs;
+    private JLabel labelCash;
+    private JList<String> list;
     public boolean dataReady;
 
     HTMLParser() {
@@ -84,7 +87,7 @@ public class HTMLParser implements Runnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(60 * 1000);
+                Thread.sleep(5 * 60 * 1000);
                 getData();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -101,15 +104,19 @@ public class HTMLParser implements Runnable {
     void showWindow() {
 
         if (dataReady) {
-            if (err!=null) window.remove(err);
-            JList<String> list = new JList<String>(listBanks);
+            if (err != null) window.remove(err);
+            if (labelCash != null) window.remove(labelCash);
+            if (labelKurs != null) window.remove(labelCash);
+            if (list != null) window.remove(list);
+
+            list = new JList<String>(listBanks);
             list.setBackground(new Color(255, 236, 184));
             window.add(list);
 
             list.setBounds(5, 5, 385, 18 * listBanks.length);
             window.setSize(400, list.getHeight() + 75);
 
-            JLabel labelKurs = new JLabel(String.format("%1$.4f BYN", kurs));
+            labelKurs = new JLabel(String.format("%1$.4f BYN", kurs));
             labelKurs.setOpaque(true);
             labelKurs.setBounds(95, list.getHeight() + 10, 100, 30);
             labelKurs.setHorizontalAlignment(JLabel.CENTER);
@@ -117,7 +124,7 @@ public class HTMLParser implements Runnable {
             labelKurs.setBackground(new Color(255, 236, 184));
             window.add(labelKurs);
 
-            JLabel labelCash = new JLabel(String.format("$ %1$,.0f ", cash));
+            labelCash = new JLabel(String.format("$ %1$,.0f ", cash));
             labelCash.setOpaque(true);
             labelCash.setHorizontalAlignment(JLabel.CENTER);
             labelCash.setVerticalAlignment(JLabel.CENTER);
@@ -127,7 +134,7 @@ public class HTMLParser implements Runnable {
         } else {
             err = new JLabel("Нет данных");
             err.setOpaque(true);
-            err.setBounds(window.getWidth()/2-50,window.getHeight()/2-30,100,30);
+            err.setBounds(window.getWidth() / 2 - 50, window.getHeight() / 2 - 30, 100, 30);
             err.setHorizontalAlignment(JLabel.CENTER);
             err.setVerticalAlignment(JLabel.CENTER);
             window.add(err);
